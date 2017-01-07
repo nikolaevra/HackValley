@@ -1,9 +1,20 @@
 <resources>
+<<<<<<< HEAD
     <string name="app_name">ChatApplication</string>
     <string name="title_activity_home_screen">HomeScreen</string>
+=======
+    <string name="app_name">Sandcastle</string>
+    <string name="title_activity_log_in">LogInActivity</string>
+>>>>>>> develop
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+<<<<<<< HEAD
+=======
+
+    <string name="facebook_app_id">373292719709907</string>
+    <string name="fb_login_protocol_scheme">fb373292719709907</string>
+>>>>>>> develop
 </resources>
