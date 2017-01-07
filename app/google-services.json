@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "675732240974",
+    "firebase_url": "https://hackvalley-6e636.firebaseio.com",
+    "project_id": "hackvalley-6e636",
+    "storage_bucket": "hackvalley-6e636.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675732240974:android:77c581f4650198ff",
+        "android_client_info": {
+          "package_name": "com.example.ruslan.chatapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "675732240974-ghmbrj188bdeafi3h93503pudjjb962l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ruslan.chatapplication",
+            "certificate_hash": "83BF63F6D3BF162C4B54951619CE8500F02C7CA3"
+          }
+        },
+        {
+          "client_id": "675732240974-6flmtustj8dona1jtm0mdul7e7t7ev54.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK60ld7SvjiyCot341T_cahshwkX35uMo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "675732240974-6flmtustj8dona1jtm0mdul7e7t7ev54.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
