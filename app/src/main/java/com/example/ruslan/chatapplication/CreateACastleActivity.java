@@ -25,43 +25,40 @@ public class CreateACastleActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         s = (CheckBox) findViewById(R.id.privateSwitch);
 
-<<<<<<< HEAD
         final String beaconID = getIntent().getStringExtra("beaconID");
 
         buildCastleButton.setOnClickListener(new Button.OnClickListener() {
-=======
-        s.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                password.setEnabled(b);
+            s.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    password.setEnabled(b);
 
-                if (b) {
-                    password.setVisibility(View.VISIBLE);
-                } else {
-                    password.setVisibility(View.INVISIBLE);
+                    if (b) {
+                        password.setVisibility(View.VISIBLE);
+                    } else {
+                        password.setVisibility(View.INVISIBLE);
+                    }
                 }
-            }
-        });
+            });
 
-        // TODO: add checks for empty password or chatname
+            // TODO: add checks for empty password or chatname
 
-        confirmButton.setOnClickListener(new Button.OnClickListener() {
->>>>>>> f91660f005e1186424202a8a99274013d094be28
+            confirmButton.setOnClickListener(new Button.OnClickListener() {
 
-            @Override
-            public void onClick(View view) {
+                @Override
+                public void onClick(View view) {
 
-                Intent chatRoomActivity = new Intent (CreateACastleActivity.this, ChatRoomActivity.class);
-                String name = chatName.getText().toString();
-                chatRoomActivity.putExtra("roomName", name);
-                chatRoomActivity.putExtra("beaconID", beaconID);
+                    Intent chatRoomActivity = new Intent (CreateACastleActivity.this, ChatRoomActivity.class);
+                    String name = chatName.getText().toString();
+                    chatRoomActivity.putExtra("roomName", name);
+                    chatRoomActivity.putExtra("beaconID", beaconID);
 
-                if (s.isChecked()) {
-                    String pass = password.getText().toString();
-                    chatRoomActivity.putExtra("roomPassword", pass);
+                    if (s.isChecked()) {
+                        String pass = password.getText().toString();
+                        chatRoomActivity.putExtra("roomPassword", pass);
+                    }
+                    startActivity(chatRoomActivity);
                 }
-                startActivity(chatRoomActivity);
-            }
-        });
+            });
+        }
     }
-}
