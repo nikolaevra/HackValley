@@ -6,4 +6,6 @@
     <color name="sandcastle_blue">#80CBC4</color>
     <color name="pretty_grey">#424242</color>
     <color name="screen_background_light">#ffffff</color>
+    <color name="viewBg">#f1f5f8</color>
+    <color name="album_title">#4c4c4c</color>
 </resources>
