@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -23,6 +20,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,14 +31,15 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LogInActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class LogInActivity extends AppCompatActivity {
 
     private static final String TAG = "Testing: ";
     private CallbackManager mCallbackManager = CallbackManager.Factory.create();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+
     public static String facebookName;
+    private LoginButton mLoginButton;
 
     public static void fadeIn(final View view) {
         view.setVisibility(View.VISIBLE);
@@ -61,33 +60,24 @@ public class LogInActivity extends AppCompatActivity
         // Initialize Facebook SDK & logger
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
-        setContentView(R.layout.activity_log_in);
-        fadeIn(findViewById(R.id.drawer_layout));
-
-        // Navigation view layout initialization
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        setContentView(R.layout.content_log_in);
+        fadeIn(findViewById(R.id.content_log_in));
 
         // Set custom text
         Typeface myTypeface = Typeface.createFromAsset(getAssets(), "coolvetica.ttf");
         TextView myTextView = (TextView)findViewById(R.id.appText);
         myTextView.setTypeface(myTypeface);
 
-        // Bypass login screen if user is already logged in
+        initializeLogInButton();
+        initializeFirebaseAuthorization();
+
+        // Show access button if user is logged in
         if (isLoggedIn()) {
             startChat();
         }
-        initializeLogInButton();
-        initializeFirebaseAuthorization();
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        else { // User is logged out
+            FirebaseAuth.getInstance().signOut();
+            LoginManager.getInstance().logOut();
         }
     }
 
@@ -130,10 +120,10 @@ public class LogInActivity extends AppCompatActivity
 
     private void initializeLogInButton() {
 
-        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions("email", "public_profile");
+         mLoginButton = (LoginButton) findViewById(R.id.login_button);
+        mLoginButton.setReadPermissions("email", "public_profile");
 
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        mLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
@@ -182,10 +172,12 @@ public class LogInActivity extends AppCompatActivity
                             Toast.makeText(LogInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        else {
+                            startChat();
+                        }
                     }
                 });
     }
-
 
     private void startChat() {
         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
@@ -194,7 +186,7 @@ public class LogInActivity extends AppCompatActivity
     }
 
     private boolean isLoggedIn() {
-        return FirebaseAuth.getInstance().getCurrentUser() != null;
+        return AccessToken.getCurrentAccessToken() != null;
     }
 
     private void initializeFirebaseAuthorization() {
@@ -206,7 +198,6 @@ public class LogInActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    startChat();
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -214,30 +205,5 @@ public class LogInActivity extends AppCompatActivity
                 // ...
             }
         };
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 }
