@@ -79,7 +79,11 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
 
+<<<<<<< HEAD
         <activity android:name=".ChatRoomActivity">
+=======
+        <activity android:name=".WallActivity">
+>>>>>>> f91660f005e1186424202a8a99274013d094be28
         </activity>
     </application>
 
