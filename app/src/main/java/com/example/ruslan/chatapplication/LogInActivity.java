@@ -37,10 +37,10 @@ public class LogInActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "Testing: ";
-    public static final String USERNAME = "username";
     private CallbackManager mCallbackManager = CallbackManager.Factory.create();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    public static String facebookName;
 
     public static void fadeIn(final View view) {
         view.setVisibility(View.VISIBLE);
@@ -63,17 +63,6 @@ public class LogInActivity extends AppCompatActivity
         AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_log_in);
         fadeIn(findViewById(R.id.drawer_layout));
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);*/
-
-
-        /*// Navigation drawer layout initialization
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();*/
-
 
         // Navigation view layout initialization
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -144,7 +133,6 @@ public class LogInActivity extends AppCompatActivity
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email", "public_profile");
 
-
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -184,7 +172,7 @@ public class LogInActivity extends AppCompatActivity
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "successfulFacebookAuth" + task.isSuccessful());
+                        Log.d(TAG, "successfulFacebookAuth: " + task.isSuccessful());
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
@@ -199,17 +187,15 @@ public class LogInActivity extends AppCompatActivity
     }
 
 
-    private void startChat() {/*
-        Intent intent = new Intent(getApplicationContext(), RoomsActivity.class);
-        String facebookName =  FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        intent.putExtra(USERNAME, facebookName);
-        startActivity(intent);*/
+    private void startChat() {
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        facebookName =  FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        startActivity(intent);
     }
 
     private boolean isLoggedIn() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
-
 
     private void initializeFirebaseAuthorization() {
         mAuth = FirebaseAuth.getInstance();

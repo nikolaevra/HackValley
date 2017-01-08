@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "675732240974",
-    "firebase_url": "https://hackvalley-6e636.firebaseio.com",
-    "project_id": "hackvalley-6e636",
-    "storage_bucket": "hackvalley-6e636.appspot.com"
+    "project_number": "89251823040",
+    "firebase_url": "https://hackvalley-5be01.firebaseio.com",
+    "project_id": "hackvalley-5be01",
+    "storage_bucket": "hackvalley-5be01.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:675732240974:android:77c581f4650198ff",
+        "mobilesdk_app_id": "1:89251823040:android:77c581f4650198ff",
         "android_client_info": {
           "package_name": "com.example.ruslan.chatapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "675732240974-ghmbrj188bdeafi3h93503pudjjb962l.apps.googleusercontent.com",
+          "client_id": "89251823040-jt4ajkgp87d9oco9n9c96t69am946ojm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.ruslan.chatapplication",
-            "certificate_hash": "83BF63F6D3BF162C4B54951619CE8500F02C7CA3"
+            "certificate_hash": "9AEA61C71B38A17B5872EC6AA1A4C2F3C25144A3"
           }
         },
         {
-          "client_id": "675732240974-6flmtustj8dona1jtm0mdul7e7t7ev54.apps.googleusercontent.com",
+          "client_id": "89251823040-fd3cfommlqogp5todrh25leo6hgh1bvm.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDK60ld7SvjiyCot341T_cahshwkX35uMo"
+          "current_key": "AIzaSyDxreksLNkzDpmaH9yZ3KiHTvQcNHVu_nw"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "675732240974-6flmtustj8dona1jtm0mdul7e7t7ev54.apps.googleusercontent.com",
+              "client_id": "89251823040-fd3cfommlqogp5todrh25leo6hgh1bvm.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
