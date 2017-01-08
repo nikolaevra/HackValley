@@ -4,26 +4,32 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.example.ruslan.chatapplication.R.id.map;
-import static com.example.ruslan.chatapplication.R.id.small;
 
 public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
@@ -40,16 +46,49 @@ public class MapsActivity extends FragmentActivity implements
 
     private GoogleMap mMap;
 
+    private DatabaseReference databaseBeaconRoot;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_maps);
 
+
+        final String BEACON_KEY = "beacons";
+
+        databaseBeaconRoot = FirebaseDatabase.getInstance().getReference().child(BEACON_KEY);
+
+        databaseBeaconRoot.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                List<Marker> markers = new ArrayList<Marker>();
+                Iterator i = dataSnapshot.getChildren().iterator();
+
+                while (i.hasNext()) {
+                    DataSnapshot mBeacon = (DataSnapshot) i.next();
+                    if (mBeacon.hasChild("latitude") && mBeacon.hasChild("longitude")) {
+                        double latitude =
+                                Double.parseDouble(mBeacon.child("latitude").getValue().toString());
+                        double longitude =
+                                Double.parseDouble(mBeacon.child("longitude").getValue().toString());
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))); //...
+                        markers.add(marker);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         // Get the SupportMapFragment and register for the callback
         // when the map is ready for use.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(map);
+                .findFragmentById(map);
         mapFragment.getMapAsync(this);
     }
 
@@ -64,15 +103,15 @@ public class MapsActivity extends FragmentActivity implements
         int height = 150;
         int width = 120;
 
-        BitmapDrawable bitmapdraw =(BitmapDrawable)getResources().getDrawable(R.drawable.map_pin2);
+        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.map_pin2);
         Bitmap b = bitmapdraw.getBitmap();
         Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
-        mMap.addMarker(new MarkerOptions()
+        /*mMap.addMarker(new MarkerOptions()
                 .position(MELBOURNE)
                 .title("Melbourne")
                 .snippet("Population: 4,137,400")
-                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
+                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));*/
 
         try {
             // Customise the styling of the base map using a JSON object defined
