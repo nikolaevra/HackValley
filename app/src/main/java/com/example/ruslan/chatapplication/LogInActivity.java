@@ -34,10 +34,11 @@ import com.google.firebase.auth.FirebaseUser;
 public class LogInActivity extends AppCompatActivity {
 
     private static final String TAG = "Testing: ";
-    public static final String USERNAME = "username";
     private CallbackManager mCallbackManager = CallbackManager.Factory.create();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+
+    public static String facebookName;
     private LoginButton mLoginButton;
 
     public static void fadeIn(final View view) {
@@ -122,7 +123,6 @@ public class LogInActivity extends AppCompatActivity {
          mLoginButton = (LoginButton) findViewById(R.id.login_button);
         mLoginButton.setReadPermissions("email", "public_profile");
 
-
         mLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -162,7 +162,7 @@ public class LogInActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "successfulFacebookAuth" + task.isSuccessful());
+                        Log.d(TAG, "successfulFacebookAuth: " + task.isSuccessful());
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
@@ -180,13 +180,14 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void startChat() {
-        // TODO insert code here to start activity
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        facebookName =  FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        startActivity(intent);
     }
 
     private boolean isLoggedIn() {
         return AccessToken.getCurrentAccessToken() != null;
     }
-
 
     private void initializeFirebaseAuthorization() {
         mAuth = FirebaseAuth.getInstance();
