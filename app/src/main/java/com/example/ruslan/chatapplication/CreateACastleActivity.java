@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 public class CreateACastleActivity extends AppCompatActivity {
@@ -22,6 +23,21 @@ public class CreateACastleActivity extends AppCompatActivity {
         chatName = (EditText) findViewById(R.id.chatName);
         password = (EditText) findViewById(R.id.password);
         s = (CheckBox) findViewById(R.id.privateSwitch);
+
+        s.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                password.setEnabled(b);
+
+                if (b) {
+                    password.setVisibility(View.VISIBLE);
+                } else {
+                    password.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        // TODO: add checks for empty password or chatname
 
         confirmButton.setOnClickListener(new Button.OnClickListener() {
 
