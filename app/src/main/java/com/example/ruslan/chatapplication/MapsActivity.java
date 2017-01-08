@@ -31,6 +31,7 @@ import java.util.List;
 
 import static com.example.ruslan.chatapplication.R.id.map;
 
+
 public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
@@ -47,6 +48,7 @@ public class MapsActivity extends FragmentActivity implements
     private GoogleMap mMap;
 
     private DatabaseReference databaseBeaconRoot;
+    Parameters params = new Parameters();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,10 +107,11 @@ public class MapsActivity extends FragmentActivity implements
 
         BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.map_pin2);
         Bitmap b = bitmapdraw.getBitmap();
-        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+        Bitmap smallMarker = params.getScaledPin(getResources(), R.drawable.map_pin2);
 
         /*mMap.addMarker(new MarkerOptions()
                 .position(MELBOURNE)
+<<<<<<< HEAD
                 .title("Melbourne")
                 .snippet("Population: 4,137,400")
                 .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));*/
