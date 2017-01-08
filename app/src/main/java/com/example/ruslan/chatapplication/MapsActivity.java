@@ -4,13 +4,11 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,11 +17,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import static com.example.ruslan.chatapplication.R.id.map;
-import static com.example.ruslan.chatapplication.R.id.small;
 
 public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
@@ -39,6 +35,8 @@ public class MapsActivity extends FragmentActivity implements
     private static final LatLng MELBOURNE = new LatLng(43.787144, -79.187807);
 
     private GoogleMap mMap;
+
+    Parameters params = new Parameters();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,18 +58,10 @@ public class MapsActivity extends FragmentActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        // TODO: move this into parameters
-        int height = 150;
-        int width = 120;
-
-        BitmapDrawable bitmapdraw =(BitmapDrawable)getResources().getDrawable(R.drawable.map_pin2);
-        Bitmap b = bitmapdraw.getBitmap();
-        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+        Bitmap smallMarker = params.getScaledPin(getResources(), R.drawable.map_pin2);
 
         mMap.addMarker(new MarkerOptions()
                 .position(MELBOURNE)
-                .title("Melbourne")
-                .snippet("Population: 4,137,400")
                 .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
 
         try {
