@@ -1,14 +1,17 @@
 package com.example.ruslan.chatapplication;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -17,11 +20,13 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -41,16 +46,13 @@ import static com.example.ruslan.chatapplication.R.id.map;
 
 public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
-        OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        OnMapReadyCallback {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private boolean mPermissionDenied = false;
-
-    private static final LatLng MELBOURNE = new LatLng(43.787144, -79.187807);
 
     private GoogleMap mMap;
 
@@ -70,7 +72,6 @@ public class MapsActivity extends FragmentActivity implements
         setContentView(R.layout.activity_maps);
 
         final String BEACON_KEY = "beacons";
-
 
 
         customMarker = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
@@ -126,7 +127,8 @@ public class MapsActivity extends FragmentActivity implements
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Intent createACastleIntent = new Intent(getApplicationContext(), CreateACastle.class);
+                Intent createACastleIntent = new Intent(getApplicationContext(),
+                        CreateACastleActivity.class);
                 startActivity(createACastleIntent);
                 return true;
             }
@@ -144,8 +146,43 @@ public class MapsActivity extends FragmentActivity implements
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
-        // Position the map's camera near Sydney, Australia.
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(-34, 151)));
+
+        moveMapToMyLocation();
+    }
+
+    private void moveMapToMyLocation() {
+
+        LocationManager locMan = (LocationManager) getApplication().getSystemService(Context.LOCATION_SERVICE);
+
+        Criteria crit = new Criteria();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
+
+        Location loc = locMan.getLastKnownLocation(locMan.getBestProvider(crit, false));
+
+        if (loc != null) {
+
+            CameraPosition camPos = new CameraPosition.Builder()
+
+                    .target(new LatLng(loc.getLatitude(), loc.getLongitude()))
+
+                    .zoom(12.8f)
+
+                    .build();
+
+            CameraUpdate camUpdate = CameraUpdateFactory.newCameraPosition(camPos);
+
+            mMap.moveCamera(camUpdate);
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+            mMap.animateCamera(zoom);
+        }
     }
 
     private void enableMyLocation() {
