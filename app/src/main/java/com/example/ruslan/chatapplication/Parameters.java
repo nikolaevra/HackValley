@@ -13,7 +13,7 @@ class Parameters {
     private final int HEIGHT = 150;
     private final int WIDTH = 120;
 
-    Bitmap getScaledPin (Resources resources, int drawable) {
+    Bitmap getScaledPinBitmap(Resources resources, int drawable) {
         BitmapDrawable bitmapdraw = (BitmapDrawable) resources.getDrawable(drawable);
         Bitmap b = bitmapdraw.getBitmap();
         return Bitmap.createScaledBitmap(b, WIDTH,  HEIGHT, false);

@@ -15,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -49,6 +50,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private DatabaseReference databaseBeaconRoot;
     Parameters params = new Parameters();
+    Bitmap customMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,8 @@ public class MapsActivity extends FragmentActivity implements
 
 
         final String BEACON_KEY = "beacons";
+
+        customMarker  = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
 
         databaseBeaconRoot = FirebaseDatabase.getInstance().getReference().child(BEACON_KEY);
 
@@ -75,7 +79,9 @@ public class MapsActivity extends FragmentActivity implements
                                 Double.parseDouble(mBeacon.child("latitude").getValue().toString());
                         double longitude =
                                 Double.parseDouble(mBeacon.child("longitude").getValue().toString());
-                        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))); //...
+                        Marker marker = mMap.addMarker(new MarkerOptions().
+                                position(new LatLng(latitude, longitude))
+                        .icon(BitmapDescriptorFactory.fromBitmap(customMarker))); //...
                         markers.add(marker);
                     }
                 }
@@ -107,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements
 
         BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.map_pin2);
         Bitmap b = bitmapdraw.getBitmap();
-        Bitmap smallMarker = params.getScaledPin(getResources(), R.drawable.map_pin2);
+        Bitmap smallMarker = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
 
         /*mMap.addMarker(new MarkerOptions()
                 .position(MELBOURNE)
