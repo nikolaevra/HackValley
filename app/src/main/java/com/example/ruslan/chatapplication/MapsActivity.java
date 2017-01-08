@@ -15,7 +15,6 @@ import android.util.Log;
 
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,13 +46,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private boolean mPermissionDenied = false;
     private GoogleMap mMap;
-    Map<String, Integer> mMarkers;
-    private DatabaseReference databaseBeaconRoot;
+    Map<String, String> mMarkers;
+    public static DatabaseReference databaseBeaconRoot;
     Parameters params = new Parameters();
     Bitmap customMarker;
-    private LocationRequest mLocationRequest;
-    private boolean mLocationUpdateState;
-    private static final int REQUEST_CHECK_SETTINGS = 2;
 
     private GoogleApiClient mClient;
 
@@ -64,7 +60,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         setContentView(R.layout.activity_maps);
         final String BEACON_KEY = "beacons";
         customMarker = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
-        mMarkers = new HashMap<String, Integer>();
+        mMarkers = new HashMap<String, String>();
         databaseBeaconRoot = FirebaseDatabase.getInstance().getReference().child(BEACON_KEY);
         databaseBeaconRoot.addValueEventListener(new ValueEventListener() {
             @Override
@@ -81,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                         Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).icon(BitmapDescriptorFactory.fromBitmap(customMarker)));
 
-                        mMarkers.put(marker.getId(), Integer.parseInt(mBeacon.child("id").getValue().toString()));
+                        mMarkers.put(marker.getId(), "beacon"+counter);
                         counter++;
                         drawMapCircle(new LatLng(latitude, longitude));
                     }
@@ -102,6 +98,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     }
 
     @Override
+    protected void onResume() {
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMyLocationButtonClickListener(this);
@@ -109,9 +109,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                int id = mMarkers.get(marker.getId());
+                String s = mMarkers.get(marker.getId());
                 Intent createACastleIntent = new Intent(getApplicationContext(), CreateACastleActivity.class);
-                createACastleIntent.putExtra("beaconID", id);
+                createACastleIntent.putExtra("beaconID", s);
                 startActivity(createACastleIntent);
                 return true;
             }
