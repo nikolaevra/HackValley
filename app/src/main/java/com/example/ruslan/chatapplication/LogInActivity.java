@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,6 +40,7 @@ public class LogInActivity extends AppCompatActivity {
     private CallbackManager mCallbackManager = CallbackManager.Factory.create();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private LoginButton mLoginButton;
 
     public static void fadeIn(final View view) {
         view.setVisibility(View.VISIBLE);
@@ -65,12 +69,17 @@ public class LogInActivity extends AppCompatActivity {
         TextView myTextView = (TextView)findViewById(R.id.appText);
         myTextView.setTypeface(myTypeface);
 
-        // Bypass login screen if user is already logged in
-        if (isLoggedIn()) {
-            startChat();
-        }
         initializeLogInButton();
         initializeFirebaseAuthorization();
+
+        // Show access button if user is logged in
+        if (isLoggedIn()) {
+            showStartChatButton();
+        }
+        else { // User is logged out
+            FirebaseAuth.getInstance().signOut();
+            LoginManager.getInstance().logOut();
+        }
     }
 
     @Override
@@ -112,11 +121,11 @@ public class LogInActivity extends AppCompatActivity {
 
     private void initializeLogInButton() {
 
-        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions("email", "public_profile");
+         mLoginButton = (LoginButton) findViewById(R.id.login_button);
+        mLoginButton.setReadPermissions("email", "public_profile");
 
 
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        mLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
@@ -165,20 +174,24 @@ public class LogInActivity extends AppCompatActivity {
                             Toast.makeText(LogInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        else {
+                            showStartChatButton();
+                        }
                     }
                 });
     }
 
 
-    private void startChat() {/*
-        Intent intent = new Intent(getApplicationContext(), RoomsActivity.class);
-        String facebookName =  FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        intent.putExtra(USERNAME, facebookName);
-        startActivity(intent);*/
+    private void showStartChatButton() {
+        Animation slide = new TranslateAnimation(0,0,-100,300);
+
+            slide.setDuration(1000);
+        slide.setFillAfter(true);
+        mLoginButton.startAnimation(slide);
     }
 
     private boolean isLoggedIn() {
-        return FirebaseAuth.getInstance().getCurrentUser() != null;
+        return AccessToken.getCurrentAccessToken() != null;
     }
 
 
@@ -191,7 +204,6 @@ public class LogInActivity extends AppCompatActivity {
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    startChat();
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
