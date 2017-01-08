@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#4d7c77</color>
     <color name="colorAccent">#ffb340</color>
     <color name="sandcastle_blue">#80CBC4</color>
+    <color name="pretty_grey">#424242</color>
+    <color name="screen_background_light">#ffffff</color>
 </resources>
