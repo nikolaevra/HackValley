@@ -1,20 +1,31 @@
 package com.example.ruslan.chatapplication;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -34,8 +45,7 @@ import static com.example.ruslan.chatapplication.R.id.map;
 
 public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
-        OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        OnMapReadyCallback {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -43,13 +53,16 @@ public class MapsActivity extends FragmentActivity implements
 
     private boolean mPermissionDenied = false;
 
-    private static final LatLng MELBOURNE = new LatLng(43.787144, -79.187807);
-
     private GoogleMap mMap;
 
     private DatabaseReference databaseBeaconRoot;
     Parameters params = new Parameters();
     Bitmap customMarker;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +70,12 @@ public class MapsActivity extends FragmentActivity implements
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_maps);
 
-
         final String BEACON_KEY = "beacons";
 
-        customMarker  = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
+
+        customMarker = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
 
         databaseBeaconRoot = FirebaseDatabase.getInstance().getReference().child(BEACON_KEY);
-
         databaseBeaconRoot.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -78,9 +90,11 @@ public class MapsActivity extends FragmentActivity implements
                                 Double.parseDouble(mBeacon.child("latitude").getValue().toString());
                         double longitude =
                                 Double.parseDouble(mBeacon.child("longitude").getValue().toString());
+
+                        // Place marker on the map
                         Marker marker = mMap.addMarker(new MarkerOptions().
                                 position(new LatLng(latitude, longitude))
-                        .icon(BitmapDescriptorFactory.fromBitmap(customMarker))); //...
+                                .icon(BitmapDescriptorFactory.fromBitmap(customMarker))); //...
                         markers.add(marker);
                     }
                 }
@@ -97,6 +111,9 @@ public class MapsActivity extends FragmentActivity implements
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(map);
         mapFragment.getMapAsync(this);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        mClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -106,20 +123,15 @@ public class MapsActivity extends FragmentActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        // TODO: move this into parameters
-        int height = 150;
-        int width = 120;
-
-        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.map_pin2);
-        Bitmap b = bitmapdraw.getBitmap();
-        Bitmap smallMarker = params.getScaledPinBitmap(getResources(), R.drawable.map_pin2);
-
-        /*mMap.addMarker(new MarkerOptions()
-                .position(MELBOURNE)
-<<<<<<< HEAD
-                .title("Melbourne")
-                .snippet("Population: 4,137,400")
-                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));*/
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Intent createACastleIntent = new Intent(getApplicationContext(),
+                        CreateACastleActivity.class);
+                startActivity(createACastleIntent);
+                return true;
+            }
+        });
 
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -133,16 +145,51 @@ public class MapsActivity extends FragmentActivity implements
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
-        // Position the map's camera near Sydney, Australia.
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(-34, 151)));
+
+        moveMapToMyLocation();
     }
 
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+    private void moveMapToMyLocation() {
+
+        LocationManager locMan = (LocationManager) getApplication().getSystemService(Context.LOCATION_SERVICE);
+
+        Criteria crit = new Criteria();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
             PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION, true);
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
+
+        Location loc = locMan.getLastKnownLocation(locMan.getBestProvider(crit, false));
+
+        if (loc != null) {
+
+            CameraPosition camPos = new CameraPosition.Builder()
+
+                    .target(new LatLng(loc.getLatitude(), loc.getLongitude()))
+
+                    .zoom(12.8f)
+
+                    .build();
+
+            CameraUpdate camUpdate = CameraUpdateFactory.newCameraPosition(camPos);
+
+            mMap.moveCamera(camUpdate);
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+            mMap.animateCamera(zoom);
+        }
+    }
+
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
             mMap.setMyLocationEnabled(true);
@@ -164,7 +211,7 @@ public class MapsActivity extends FragmentActivity implements
         }
 
         if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Enable the my location layer if the permission has been granted.
             enableMyLocation();
         } else {
@@ -188,4 +235,39 @@ public class MapsActivity extends FragmentActivity implements
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
 
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Maps Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        mClient.connect();
+        AppIndex.AppIndexApi.start(mClient, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(mClient, getIndexApiAction());
+        mClient.disconnect();
+    }
 }

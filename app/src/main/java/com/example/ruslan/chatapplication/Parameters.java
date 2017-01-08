@@ -10,8 +10,8 @@ import android.graphics.drawable.BitmapDrawable;
 
 class Parameters {
 
-    private final int HEIGHT = 150;
-    private final int WIDTH = 120;
+    private final int HEIGHT = 215;
+    private final int WIDTH = 175;
 
     Bitmap getScaledPinBitmap(Resources resources, int drawable) {
         BitmapDrawable bitmapdraw = (BitmapDrawable) resources.getDrawable(drawable);
