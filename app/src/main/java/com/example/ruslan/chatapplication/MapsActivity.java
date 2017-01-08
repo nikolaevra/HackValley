@@ -1,46 +1,144 @@
 package com.example.ruslan.chatapplication;
 
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import static com.example.ruslan.chatapplication.R.id.map;
+import static com.example.ruslan.chatapplication.R.id.small;
+
+public class MapsActivity extends FragmentActivity implements
+        GoogleMap.OnMyLocationButtonClickListener,
+        OnMapReadyCallback,
+        ActivityCompat.OnRequestPermissionsResultCallback {
+
+    private static final String TAG = MapsActivity.class.getSimpleName();
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    private boolean mPermissionDenied = false;
+
+    private static final LatLng MELBOURNE = new LatLng(43.787144, -79.187807);
 
     private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+        // Get the SupportMapFragment and register for the callback
+        // when the map is ready for use.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                        .findFragmentById(map);
         mapFragment.getMapAsync(this);
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap = googleMap;
+        mMap.setOnMyLocationButtonClickListener(this);
+        enableMyLocation();
+
+        // TODO: move this into parameters
+        int height = 150;
+        int width = 120;
+
+        BitmapDrawable bitmapdraw =(BitmapDrawable)getResources().getDrawable(R.drawable.map_pin2);
+        Bitmap b = bitmapdraw.getBitmap();
+        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+        mMap.addMarker(new MarkerOptions()
+                .position(MELBOURNE)
+                .title("Melbourne")
+                .snippet("Population: 4,137,400")
+                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
+
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+        // Position the map's camera near Sydney, Australia.
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(-34, 151)));
     }
+
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Enable the my location layer if the permission has been granted.
+            enableMyLocation();
+        } else {
+            // Display the missing permission error dialog when the fragments resume.
+            mPermissionDenied = true;
+        }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError();
+            mPermissionDenied = false;
+        }
+    }
+
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
 }
