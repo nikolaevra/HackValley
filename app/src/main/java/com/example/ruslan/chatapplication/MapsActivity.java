@@ -96,10 +96,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+/*
 
     @Override
     protected void onResume() {
     }
+*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
