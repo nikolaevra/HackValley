@@ -11,8 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,7 +72,7 @@ public class LogInActivity extends AppCompatActivity {
 
         // Show access button if user is logged in
         if (isLoggedIn()) {
-            showStartChatButton();
+            startChat();
         }
         else { // User is logged out
             FirebaseAuth.getInstance().signOut();
@@ -175,19 +173,14 @@ public class LogInActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            showStartChatButton();
+                            startChat();
                         }
                     }
                 });
     }
 
-
-    private void showStartChatButton() {
-        Animation slide = new TranslateAnimation(0,0,-100,300);
-
-            slide.setDuration(1000);
-        slide.setFillAfter(true);
-        mLoginButton.startAnimation(slide);
+    private void startChat() {
+        // TODO insert code here to start activity
     }
 
     private boolean isLoggedIn() {
